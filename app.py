@@ -18,9 +18,9 @@ from sklearn.metrics import (
     classification_report
 )
 
-# --------------------------------------------------
-# 1. APPLICATION CONFIGURATION
-# --------------------------------------------------
+# =====================================================
+# 1. PAGE CONFIGURATION
+# =====================================================
 
 st.set_page_config(
     page_title="Breast Cancer Classification",
@@ -30,17 +30,23 @@ st.set_page_config(
 
 st.title("Breast Cancer Classification System")
 
-st.write(
-    "This application evaluates five machine learning "
-    "classification models using the Breast Cancer "
-    "Wisconsin Diagnostic dataset."
-)
+st.markdown("""
+This application compares five machine learning classification
+algorithms using the Breast Cancer Wisconsin Diagnostic dataset.
 
-# --------------------------------------------------
-# 2. MODEL CONFIGURATION
-# --------------------------------------------------
+You can either use the default test dataset available in this
+repository or upload your own CSV file.
+""")
 
-MODEL_FOLDER = Path("models")
+# =====================================================
+# 2. PROJECT CONFIGURATION
+# =====================================================
+
+BASE_DIR = Path(__file__).resolve().parent
+
+MODEL_FOLDER = BASE_DIR / "models"
+
+DEFAULT_DATASET = BASE_DIR / "test_data.csv"
 
 model_files = {
     "Logistic Regression": "logistic_regression.joblib",
@@ -50,55 +56,112 @@ model_files = {
     "Support Vector Machine": "support_vector_machine.joblib"
 }
 
-# --------------------------------------------------
-# 3. CSV FILE UPLOAD
-# --------------------------------------------------
+# =====================================================
+# 3. DATASET SELECTION
+# =====================================================
 
-st.header("1. Upload Test Dataset")
+st.header("1. Dataset Selection")
 
-uploaded_file = st.file_uploader(
-    "Upload your test_data.csv file",
-    type=["csv"]
+dataset_option = st.selectbox(
+    "Choose your dataset",
+    [
+        "Default Repository Dataset",
+        "Upload Your Own CSV"
+    ],
+    index=0
 )
 
-# --------------------------------------------------
-# 4. MODEL SELECTION
-# --------------------------------------------------
+data = None
 
-st.header("2. Select Classification Model")
+if dataset_option == "Default Repository Dataset":
 
-selected_model = st.selectbox(
-    "Choose a machine learning algorithm",
-    list(model_files.keys())
-)
+    if DEFAULT_DATASET.exists():
 
-# --------------------------------------------------
-# 5. EVALUATION
-# --------------------------------------------------
+        data = pd.read_csv(DEFAULT_DATASET)
 
-if uploaded_file is not None:
+        st.success(
+            "Default test dataset loaded successfully from the repository."
+        )
 
-    try:
+        st.caption(
+            "Using the test_data.csv file included in this GitHub repository."
+        )
+
+    else:
+        st.error(
+            "Default dataset not found. Please check test_data.csv "
+            "in the project repository."
+        )
+
+else:
+
+    st.info(
+        "Upload your own CSV containing the same 30 numerical "
+        "features used during model training."
+    )
+
+    uploaded_file = st.file_uploader(
+        "Choose your CSV file",
+        type=["csv"],
+        key="custom_dataset"
+    )
+
+    if uploaded_file is not None:
+
         data = pd.read_csv(uploaded_file)
 
-        st.subheader("Uploaded Dataset")
-        st.dataframe(data.head())
+        st.success("Your CSV file was uploaded successfully.")
 
-        if "diagnosis" not in data.columns:
-            st.error(
-                "The uploaded CSV must contain a diagnosis column."
-            )
+# =====================================================
+# 4. MODEL SELECTION
+# =====================================================
 
-        else:
+st.header("2. Classification Model Selection")
 
-            # Separate input features and actual target
+selected_model = st.selectbox(
+    "Choose a classification algorithm",
+    list(model_files.keys()),
+    index=4
+)
 
-            X = data.drop(columns=["diagnosis"])
-            y = data["diagnosis"]
+# =====================================================
+# 5. DATASET PREVIEW
+# =====================================================
 
-            # Convert target labels if necessary
+if data is not None:
 
-            y = y.replace({
+    st.header("3. Dataset Preview")
+
+    st.write("Dataset dimensions:", data.shape)
+
+    st.dataframe(
+        data.head(),
+        use_container_width=True
+    )
+
+    # =================================================
+    # 6. LOAD MODEL
+    # =================================================
+
+    model_path = MODEL_FOLDER / model_files[selected_model]
+
+    if not model_path.exists():
+
+        st.error("Selected trained model was not found.")
+
+    else:
+
+        model = joblib.load(model_path)
+
+        # =============================================
+        # 7. PREPARE INPUT DATA
+        # =============================================
+
+        if "diagnosis" in data.columns:
+
+            X = data.drop(columns=["diagnosis"]).copy()
+
+            y = data["diagnosis"].replace({
                 "B": 0,
                 "M": 1,
                 "b": 0,
@@ -106,159 +169,214 @@ if uploaded_file is not None:
             })
 
             if y.isnull().any() or not set(y.unique()).issubset({0, 1}):
+
                 st.error(
                     "Diagnosis must contain only B/M or 0/1 values."
                 )
+                st.stop()
 
-            else:
+            y = y.astype(int)
 
-                model_path = MODEL_FOLDER / model_files[selected_model]
+            has_actual_labels = True
 
-                if not model_path.exists():
-                    st.error("Selected model file was not found.")
+        else:
 
-                else:
+            X = data.copy()
 
-                    # Load selected trained model
+            y = None
 
-                    model = joblib.load(model_path)
+            has_actual_labels = False
 
-                    # Check feature compatibility
+        # =============================================
+        # 8. VALIDATE FEATURES
+        # =============================================
 
-                    if hasattr(model, "feature_names_in_"):
-                        expected_features = list(model.feature_names_in_)
+        if hasattr(model, "feature_names_in_"):
 
-                        if set(X.columns) != set(expected_features):
-                            st.error(
-                                "Uploaded CSV features do not match "
-                                "the selected model."
-                            )
-                            st.stop()
+            expected_features = list(model.feature_names_in_)
 
-                        X = X[expected_features]
+            if set(X.columns) != set(expected_features):
 
-                    elif X.shape[1] != 30:
-                        st.error(
-                            "The uploaded dataset must contain "
-                            "exactly 30 input features."
-                        )
-                        st.stop()
+                st.error(
+                    "Uploaded dataset does not contain the expected "
+                    "feature names. Please use the original 30 feature "
+                    "columns."
+                )
+                st.stop()
 
-                    # Generate predictions
+            X = X[expected_features]
 
-                    predictions = model.predict(X)
+        elif X.shape[1] != 30:
 
-                    probabilities = model.predict_proba(X)[:, 1]
+            st.error(
+                "The dataset must contain exactly 30 input features."
+            )
+            st.stop()
 
-                    # Calculate evaluation metrics
+        # Check numerical values
 
-                    accuracy = accuracy_score(y, predictions)
+        try:
+            X = X.apply(pd.to_numeric, errors="raise")
 
-                    auc = roc_auc_score(y, probabilities)
+            if X.isnull().any().any():
+                st.error("The dataset contains missing feature values.")
+                st.stop()
 
-                    precision = precision_score(
-                        y, predictions, zero_division=0
-                    )
+        except (ValueError, TypeError):
+            st.error("All 30 input features must be numerical.")
+            st.stop()
 
-                    recall = recall_score(
-                        y, predictions, zero_division=0
-                    )
+        # =============================================
+        # 9. GENERATE PREDICTIONS
+        # =============================================
 
-                    f1 = f1_score(
-                        y, predictions, zero_division=0
-                    )
+        predictions = model.predict(X)
 
-                    mcc = matthews_corrcoef(y, predictions)
+        probabilities = model.predict_proba(X)[:, 1]
 
-                    # Display evaluation results
+        st.header("4. Prediction Results")
 
-                    st.header("3. Model Performance")
+        st.write("Selected Model:", selected_model)
 
-                    st.subheader(selected_model)
+        # =============================================
+        # 10. DISPLAY PREDICTIONS
+        # =============================================
 
-                    col1, col2, col3 = st.columns(3)
+        output = data.copy()
 
-                    col1.metric("Accuracy", f"{accuracy:.4f}")
-                    col2.metric("AUC", f"{auc:.4f}")
-                    col3.metric("Precision", f"{precision:.4f}")
+        output["Predicted_Diagnosis"] = pd.Series(
+            predictions,
+            index=output.index
+        ).map({
+            0: "Benign",
+            1: "Malignant"
+        })
 
-                    col4, col5, col6 = st.columns(3)
+        output["Malignant_Probability"] = probabilities.round(4)
 
-                    col4.metric("Recall", f"{recall:.4f}")
-                    col5.metric("F1 Score", f"{f1:.4f}")
-                    col6.metric("MCC", f"{mcc:.4f}")
+        st.dataframe(
+            output,
+            use_container_width=True
+        )
 
-                    # Display confusion matrix
+        csv_output = output.to_csv(index=False).encode("utf-8")
 
-                    st.header("4. Confusion Matrix")
+        st.download_button(
+            "Download Prediction Results",
+            data=csv_output,
+            file_name="classification_predictions.csv",
+            mime="text/csv"
+        )
 
-                    cm = confusion_matrix(
-                        y,
-                        predictions,
-                        labels=[0, 1]
-                    )
+        # =============================================
+        # 11. EVALUATION METRICS
+        # =============================================
 
-                    fig, ax = plt.subplots(figsize=(6, 4))
+        if has_actual_labels:
 
-                    sns.heatmap(
-                        cm,
-                        annot=True,
-                        fmt="d",
-                        cmap="Blues",
-                        xticklabels=["Benign", "Malignant"],
-                        yticklabels=["Benign", "Malignant"],
-                        ax=ax
-                    )
+            st.header("5. Model Performance Evaluation")
 
-                    ax.set_xlabel("Predicted Diagnosis")
-                    ax.set_ylabel("Actual Diagnosis")
-                    ax.set_title("Confusion Matrix")
+            accuracy = accuracy_score(y, predictions)
 
-                    st.pyplot(fig)
-                    plt.close(fig)
+            auc = roc_auc_score(y, probabilities)
 
-                    # Display classification report
+            precision = precision_score(
+                y, predictions, zero_division=0
+            )
 
-                    st.header("5. Classification Report")
+            recall = recall_score(
+                y, predictions, zero_division=0
+            )
 
-                    report = classification_report(
-                        y,
-                        predictions,
-                        target_names=["Benign", "Malignant"],
-                        output_dict=True,
-                        zero_division=0
-                    )
+            f1 = f1_score(
+                y, predictions, zero_division=0
+            )
 
-                    report_df = pd.DataFrame(report).transpose()
+            mcc = matthews_corrcoef(y, predictions)
 
-                    st.dataframe(
-                        report_df.round(4),
-                        use_container_width=True
-                    )
+            col1, col2, col3 = st.columns(3)
 
-                    # Display predictions
+            col1.metric("Accuracy", f"{accuracy:.4f}")
+            col2.metric("AUC", f"{auc:.4f}")
+            col3.metric("Precision", f"{precision:.4f}")
 
-                    st.header("6. Prediction Results")
+            col4, col5, col6 = st.columns(3)
 
-                    output = data.copy()
+            col4.metric("Recall", f"{recall:.4f}")
+            col5.metric("F1 Score", f"{f1:.4f}")
+            col6.metric("MCC", f"{mcc:.4f}")
 
-                    output["Predicted_Diagnosis"] = predictions
+            # =========================================
+            # 12. CONFUSION MATRIX
+            # =========================================
 
-                    output["Predicted_Diagnosis"] = (
-                        output["Predicted_Diagnosis"]
-                        .map({0: "Benign", 1: "Malignant"})
-                    )
+            st.header("6. Confusion Matrix")
 
-                    st.dataframe(output, use_container_width=True)
+            cm = confusion_matrix(
+                y,
+                predictions,
+                labels=[0, 1]
+            )
 
-                    st.success(
-                        "Model evaluation completed successfully!"
-                    )
+            fig, ax = plt.subplots(figsize=(7, 5))
 
-    except Exception as e:
-        st.error(f"An error occurred: {e}")
+            sns.heatmap(
+                cm,
+                annot=True,
+                fmt="d",
+                cmap="Blues",
+                xticklabels=["Benign", "Malignant"],
+                yticklabels=["Benign", "Malignant"],
+                ax=ax
+            )
+
+            ax.set_xlabel("Predicted Diagnosis")
+            ax.set_ylabel("Actual Diagnosis")
+            ax.set_title("Confusion Matrix")
+
+            st.pyplot(fig)
+            plt.close(fig)
+
+            # =========================================
+            # 13. CLASSIFICATION REPORT
+            # =========================================
+
+            st.header("7. Classification Report")
+
+            report = classification_report(
+                y,
+                predictions,
+                target_names=["Benign", "Malignant"],
+                output_dict=True,
+                zero_division=0
+            )
+
+            report_df = pd.DataFrame(report).transpose()
+
+            st.dataframe(
+                report_df.round(4),
+                use_container_width=True
+            )
+
+            st.success(
+                "Classification and model evaluation completed successfully!"
+            )
+
+        else:
+
+            st.header("5. Prediction Summary")
+
+            st.info(
+                "No diagnosis column was provided. Predictions have "
+                "been generated, but evaluation metrics, confusion "
+                "matrix and classification report cannot be calculated "
+                "without actual diagnosis labels."
+            )
 
 else:
+
     st.info(
-        "Please upload test_data.csv to evaluate the selected model."
+        "The application will automatically load the default "
+        "repository dataset. Select 'Upload Your Own CSV' above "
+        "if you want to use a different dataset."
     )

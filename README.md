@@ -28,7 +28,7 @@ Dataset source: https://archive.ics.uci.edu/ml/machine-learning-databases/breast
 
 ## 3. GitHub Repository Link
 
-**Repository:** [INSERT YOUR GITHUB REPOSITORY URL]
+**Repository:** https://github.com/Rohal25/breast-cancer-classification-models
 
 The repository contains the Jupyter Notebook, Streamlit application, saved classification models, test dataset and supporting documentation.
 
@@ -103,18 +103,17 @@ These results represent a machine learning experiment and should not be interpre
 
 ## 6. Streamlit Application
 
-**Live Application:** [INSERT YOUR STREAMLIT APP URL]
+**Live Application:** [(https://2026aj05044.streamlit.app/)]
 
-The Streamlit application provides the following features:
+### Dataset Selection and User Interaction
 
-- CSV test dataset upload.
-- Selection of any of the five trained classification models.
-- Display of accuracy, AUC, precision, recall, F1 score and MCC.
-- Confusion matrix visualisation.
-- Classification report.
-- Prediction results.
+The Streamlit application provides two dataset selection options:
 
-The application loads the previously trained models and evaluates the uploaded test dataset without retraining.
+1. **Default Repository Dataset:** The application automatically loads the `test_data.csv` file stored in the GitHub repository when it is opened. Users can immediately explore the classification results without uploading a file.
+
+2. **Upload Your Own CSV:** Users can select this option to upload a custom CSV dataset containing the required 30 numerical input features. If actual diagnosis labels are included, the application also calculates the six evaluation metrics and displays the confusion matrix and classification report. If labels are not provided, the application generates predictions without calculating evaluation metrics.
+
+The Support Vector Machine model is selected by default, while users can switch between all five trained classification algorithms.
 
 ## 7. Project Structure
 
