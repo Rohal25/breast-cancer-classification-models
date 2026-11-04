@@ -153,7 +153,7 @@ Start the Streamlit application:
 streamlit run app.py
 ```
 
-Upload `test_data.csv`, select a classification model and view its evaluation results.
+Open the app to use the default labelled `test_data.csv`, or upload another labelled test CSV. Select a model to inspect its predictions and confusion matrix; the comparison table displays all five models' metrics.
 
 ## 9. Conclusion
 
