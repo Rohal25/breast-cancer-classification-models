@@ -131,7 +131,7 @@ aiml_assignment2/
 │   ├── wdbc.data
 │   └── README.txt
 │
-└── models/
+└── model/
     ├── logistic_regression.joblib
     ├── decision_tree.joblib
     ├── k_nearest_neighbors.joblib

@@ -23,7 +23,7 @@ st.set_page_config(
 )
 
 BASE_DIR = Path(__file__).resolve().parent
-MODEL_FOLDER = BASE_DIR / "models"
+MODEL_FOLDER = BASE_DIR / "model"
 DEFAULT_DATASET = BASE_DIR / "test_data.csv"
 
 MODEL_FILES = {
