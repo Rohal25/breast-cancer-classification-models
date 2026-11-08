@@ -1,137 +1,58 @@
-# Breast Cancer Wisconsin Diagnostic – Classification Models
+# Breast Cancer Wisconsin (Diagnostic) – Classification Models
 
-## 1. Problem Statement
+**Programme:** M.Tech Artificial Intelligence and Machine Learning, BITS Pilani
+**Course:** Machine Learning – Assignment 2
+**Student:** Rohal Kurup | **BITS ID:** 2026AJ05995
 
-The objective of this project is to develop and compare five machine learning classification algorithms to predict whether a breast tumour is benign or malignant using diagnostic measurements.
+- GitHub repository: https://github.com/Rohal25/breast-cancer-classification-models
+- Live Streamlit app: https://2026aj05995.streamlit.app/
 
-The project uses the Breast Cancer Wisconsin Diagnostic dataset. Since this is a medical classification problem, identifying malignant cases correctly is particularly important. Therefore, recall is an important evaluation metric because a false negative means that a malignant tumour is incorrectly classified as benign.
+---
 
-## 2. Dataset Description
+## a. Problem Statement
 
-- **Dataset:** Breast Cancer Wisconsin Diagnostic Dataset
-- **Source:** UCI Machine Learning Repository
-- **Problem Type:** Binary Classification
-- **Total Instances:** 569
-- **Input Features:** 30 numerical features
-- **Target Variable:** Diagnosis
-- **Target Classes:** Benign (B) and Malignant (M)
+The objective of this project is to develop and compare five machine learning classification algorithms that predict whether a breast tumour is **benign** or **malignant** from diagnostic measurements.
 
-The dataset contains measurements such as radius, texture, perimeter, area, smoothness, compactness, concavity and symmetry.
+Because this is a medical classification problem, identifying malignant cases correctly is particularly important. Recall is therefore a key evaluation metric: a false negative means a malignant tumour is classified as benign.
 
-The identifier column was excluded because it does not contribute meaningful predictive information.
+## b. Dataset Description
 
-The target variable was encoded as:
-- 0 – Benign
-- 1 – Malignant
+| Item | Detail |
+|---|---|
+| Dataset | Breast Cancer Wisconsin (Diagnostic) |
+| Source | UCI Machine Learning Repository |
+| Problem type | Binary classification |
+| Instances | 569 (357 benign, 212 malignant) |
+| Input features | 30 numerical features |
+| Target | `diagnosis` – Benign (B) / Malignant (M) |
+
+The 30 features are the mean, standard error and worst value of ten nuclear measurements (radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, fractal dimension).
+
+The identifier column was excluded because it carries no predictive information. The target was encoded as **0 = Benign, 1 = Malignant**.
 
 Dataset source: https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data
+A copy is stored in the repository at `data/wdbc.data`.
 
-## 3. GitHub Repository Link
+## c. GitHub Repository
 
-**Repository:** https://github.com/Rohal25/breast-cancer-classification-models
+https://github.com/Rohal25/breast-cancer-classification-models
 
-The repository contains the Jupyter Notebook, Streamlit application, saved classification models, test dataset and supporting documentation.
+The repository contains the Jupyter Notebook, the Streamlit application, `requirements.txt`, this README, the test dataset, five saved models and the evaluation results.
 
-## 4. Data Preprocessing
+### Project structure
 
-The following preprocessing steps were performed:
-
-1. Loaded the dataset from the UCI Machine Learning Repository.
-2. Removed the identifier column.
-3. Encoded the diagnosis variable into numerical values.
-4. Checked missing values and duplicate records.
-5. Separated input features and the target variable.
-6. Split the dataset into training and testing sets using an 80:20 ratio.
-7. Used stratified sampling to maintain the class distribution.
-8. Applied StandardScaler to Logistic Regression, KNN and SVM through pipelines.
-
-The train-test split used random_state=42 for reproducibility.
-
-## 5. Classification Models and Evaluation
-
-The following five classification algorithms were implemented:
-
-1. Logistic Regression
-2. Decision Tree Classifier
-3. K-Nearest Neighbours
-4. Gaussian Naive Bayes
-5. Support Vector Machine
-
-The models were evaluated using six performance metrics.
-
-### Model Comparison
-
-| ML Model | Accuracy | AUC | Precision | Recall | F1 Score | MCC |
-|---|---:|---:|---:|---:|---:|---:|
-| Logistic Regression | 0.9649 | 0.9960 | 0.9750 | 0.9286 | 0.9512 | 0.9245 |
-| Decision Tree | 0.9211 | 0.9448 | 0.9459 | 0.8333 | 0.8861 | 0.8299 |
-| KNN | 0.9561 | 0.9823 | 0.9744 | 0.9048 | 0.9383 | 0.9058 |
-| Naive Bayes | 0.9386 | 0.9934 | 1.0000 | 0.8333 | 0.9091 | 0.8715 |
-| Support Vector Machine | 0.9737 | 0.9947 | 1.0000 | 0.9286 | 0.9630 | 0.9442 |
-
-### Observations on Model Performance
-
-**Logistic Regression**
-
-Logistic Regression achieved an accuracy of 96.49% and an AUC score of 0.9960. It provided a good balance between precision and recall. Its recall of 92.86% indicates that it identified most malignant cases correctly.
-
-**Decision Tree**
-
-The Decision Tree achieved an accuracy of 92.11%. Its performance was comparatively lower than the other models, with a recall of 83.33%. Although the model is relatively easy to interpret, its overall classification performance was weaker in this experiment.
-
-**K-Nearest Neighbours**
-
-KNN achieved an accuracy of 95.61% and an F1 score of 0.9383. It performed reasonably well after feature scaling. Its recall of 90.48% indicates that it identified most of the malignant cases, although it performed slightly below Logistic Regression and SVM.
-
-**Gaussian Naive Bayes**
-
-Naive Bayes achieved an accuracy of 93.86% and an AUC score of 0.9934. It recorded perfect precision, meaning that none of its malignant predictions were false positives in this test set. However, its recall was 83.33%, indicating that some actual malignant cases were missed.
-
-**Support Vector Machine**
-
-SVM achieved the highest accuracy of 97.37%, with an F1 score of 0.9630 and an MCC score of 0.9442. It also achieved perfect precision and a recall of 92.86%. Overall, it provided the strongest classification performance among the five models in this experiment.
-
-### Overall Winner
-
-The Support Vector Machine was the best-performing model based on the overall comparison.
-
-It achieved the highest accuracy, precision, F1 score and MCC among the five classifiers. Logistic Regression recorded a slightly higher AUC score, but SVM performed better across most of the other evaluation metrics.
-
-Based on these results, SVM is selected as the overall winner for this dataset.
-
-These results represent a machine learning experiment and should not be interpreted as clinical validation of a diagnostic system.
-
-## 6. Streamlit Application
-
-**Live Application:** [(https://2026aj05044.streamlit.app/)]
-
-### Dataset Selection and User Interaction
-
-The Streamlit application provides two dataset selection options:
-
-1. **Default Repository Dataset:** The application automatically loads the `test_data.csv` file stored in the GitHub repository when it is opened. Users can immediately explore the classification results without uploading a file.
-
-2. **Upload Your Own CSV:** Users can select this option to upload a custom CSV dataset containing the required 30 numerical input features. If actual diagnosis labels are included, the application also calculates the six evaluation metrics and displays the confusion matrix and classification report. If labels are not provided, the application generates predictions without calculating evaluation metrics.
-
-The Support Vector Machine model is selected by default, while users can switch between all five trained classification algorithms.
-
-## 7. Project Structure
-
-```text
-aiml_assignment2/
-│
-├── app.py
-├── assignment2.ipynb
+```
+breast-cancer-classification-models/
+├── app.py                      # Streamlit application
+├── assignment2.ipynb           # Data analysis, training and evaluation
 ├── requirements.txt
 ├── README.md
-├── test_data.csv
-├── model_metrics.csv
-│
+├── test_data.csv               # Held-out test set (114 rows, 30 features + diagnosis)
+├── model_metrics.csv           # Evaluation results for all five models
 ├── data/
 │   ├── wdbc.data
 │   └── README.txt
-│
-└── models/
+└── model/
     ├── logistic_regression.joblib
     ├── decision_tree.joblib
     ├── k_nearest_neighbors.joblib
@@ -139,26 +60,73 @@ aiml_assignment2/
     └── support_vector_machine.joblib
 ```
 
-## 8. How to Run the Project
+### Data preprocessing
 
-Install the required dependencies:
+1. Loaded the dataset from the UCI repository.
+2. Removed the identifier column.
+3. Encoded the diagnosis (0 = Benign, 1 = Malignant).
+4. Checked for missing values (none) and duplicate records.
+5. Separated the input features and the target.
+6. Split into training and test sets (80:20, `random_state=42`).
+7. Used stratified sampling to preserve the class distribution (455 training / 114 test rows).
+8. Applied `StandardScaler` to Logistic Regression, KNN and SVM through scikit-learn pipelines (so the scaler is fitted on training data only).
+
+## d. Models Used
+
+Models: Logistic Regression, Decision Tree, K-Nearest Neighbours, Gaussian Naive Bayes, Support Vector Machine. All were trained on the same split and evaluated on the same 114-row test set.
+
+### Comparison table
+
+| ML Model Name | Accuracy | AUC | Precision | Recall | F1 | MCC |
+|---|---|---|---|---|---|---|
+| Logistic Regression | 0.9649 | 0.9960 | 0.9750 | 0.9286 | 0.9512 | 0.9245 |
+| Decision Tree | 0.9211 | 0.9448 | 0.9459 | 0.8333 | 0.8861 | 0.8299 |
+| KNN | 0.9561 | 0.9823 | 0.9744 | 0.9048 | 0.9383 | 0.9058 |
+| Naive Bayes | 0.9386 | 0.9934 | 1.0000 | 0.8333 | 0.9091 | 0.8715 |
+| Support Vector Machine | 0.9737 | 0.9947 | 1.0000 | 0.9286 | 0.9630 | 0.9442 |
+
+### Observations on model performance
+
+| ML Model Name | Observation about model performance |
+|---|---|
+| Logistic Regression | Accuracy 96.49% and the highest AUC (0.9960). Precision (0.9750) and recall (0.9286) are well balanced: it missed 3 of 42 malignant cases and raised 1 false alarm. A strong, simple baseline on scaled data. |
+| Decision Tree | Weakest model: accuracy 92.11%, recall 83.33% (7 malignant cases missed) and lowest AUC (0.9448). Easy to interpret, but a single depth-limited tree generalised less well than the other models here. |
+| KNN | Accuracy 95.61%, F1 0.9383, recall 90.48% (4 malignant cases missed). Performed well after feature scaling, slightly below Logistic Regression and SVM. |
+| Naive Bayes | Accuracy 93.86% and a high AUC (0.9934). Precision is perfect (no false positives), but recall is only 83.33% (7 malignant cases missed), so it is the riskier choice when missing a malignant case is costly. |
+| Support Vector Machine | Highest accuracy (97.37%), F1 (0.9630) and MCC (0.9442). Precision is perfect (1.0) and recall is 0.9286, matching Logistic Regression (3 malignant cases missed, 0 false alarms). |
+| **Overall winner** | **Support Vector Machine.** It has the highest accuracy, F1 and MCC, ties Naive Bayes for the highest precision and ties Logistic Regression for the highest recall. Logistic Regression has a marginally higher AUC (0.9960 vs 0.9947). |
+
+**Note on reliability:** the test set has only 114 samples, so the gap between SVM and Logistic Regression is one patient. Treat the ranking of the top models as indicative rather than conclusive. These results come from a machine learning experiment and are not clinical validation of a diagnostic system.
+
+## Streamlit Application
+
+Live app: https://2026aj05995.streamlit.app/
+
+**Dataset options**
+
+1. **Default repository dataset** – loads `test_data.csv` from the repository automatically.
+2. **Upload your own CSV** – the file must contain the 30 numerical input features (column names exactly as in `test_data.csv`, no `id` column) and a target column named `diagnosis` with values **B/M or 0/1** (0 = Benign, 1 = Malignant). The app validates the file and shows a clear error if columns or values are wrong.
+
+**Features**
+
+- CSV test-data upload
+- Model selection dropdown (SVM selected by default)
+- Predictions
+- Evaluation metrics (Accuracy, AUC, Precision, Recall, F1, MCC)
+- Confusion matrix and classification report
+- Comparison table of all five models
+
+The app loads the saved models from `model/` and predicts on the uploaded data **without retraining**.
+
+## How to Run
 
 ```bash
 pip install -r requirements.txt
-```
-
-Start the Streamlit application:
-
-```bash
 streamlit run app.py
 ```
 
-Open the app to use the default labelled `test_data.csv`, or upload another labelled test CSV. Select a model to inspect its predictions and confusion matrix; the comparison table displays all five models' metrics.
+Use the default `test_data.csv` or upload another labelled test CSV, choose a model, and inspect its metrics and confusion matrix.
 
-## 9. Conclusion
+## Conclusion
 
-This project implemented and compared five machine learning classification algorithms using the Breast Cancer Wisconsin Diagnostic dataset. All models were evaluated using six performance metrics on the same test dataset.
-
-The experiment showed that Support Vector Machine achieved the best overall results, while Logistic Regression also demonstrated strong classification performance.
-
-The project also demonstrates how trained machine learning models can be integrated into a Streamlit application to provide an interactive evaluation interface.
+Five classifiers were compared on the Breast Cancer Wisconsin (Diagnostic) dataset using six metrics on the same test set. Support Vector Machine gave the best overall results, with Logistic Regression close behind. The project also shows how trained models can be saved and served through a Streamlit app for interactive evaluation.
